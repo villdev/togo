@@ -7,18 +7,19 @@ import (
 	"github.com/villdev/togo/cmd"
 )
 
-func Load(filename string, dst *cmd.Todos) error {
+func Load(filename string) (cmd.Todos, error) {
+	var todos cmd.Todos
 	file, err := os.ReadFile(filename)
 	if err != nil {
-		return err
+		return todos, err
 	}
 
-	err = json.Unmarshal(file, dst)
+	err = json.Unmarshal(file, &todos)
 	if err != nil {
-		return err
+		return todos, err
 	}
 
-	return nil
+	return todos, nil
 }
 
 func Save(src cmd.Todos, filename string) error {

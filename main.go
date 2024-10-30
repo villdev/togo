@@ -9,58 +9,30 @@ import (
 )
 
 const (
-	AddFlag      = "add"
-	CompleteFlag = "complete"
-	RedoFlag     = "redo"
-	DelFlag      = "del"
+	AddFlag      = "-add"
+	CompleteFlag = "-complete"
+	RedoFlag     = "-redo"
+	DelFlag      = "-del"
 )
 
+type command struct {
+	flag string
+	args string
+}
+
 func main() {
-	var todos cmd.Todos
-	err := store.Load("./db.json", &todos)
+	todos, err := store.Load("./db.json")
 	if err != nil {
 		fmt.Println("Error: ", err)
 		return
 	}
 
-	cmdArgs := os.Args[1:]
+	flagQueue := parseCmdArgs(os.Args[1:])
 
-	currentFlag := ""
-	flagArg := ""
-	for _, arg := range cmdArgs {
+	for _, c := range flagQueue {
 		if err == nil {
-			switch arg {
-			case "-" + AddFlag:
-				if currentFlag != "" {
-					err = execFlag(currentFlag, flagArg, &todos)
-				}
-				currentFlag = AddFlag
-				flagArg = ""
-			case "-" + CompleteFlag:
-				if currentFlag != "" {
-					err = execFlag(currentFlag, flagArg, &todos)
-				}
-				currentFlag = CompleteFlag
-				flagArg = ""
-			case "-" + RedoFlag:
-				if currentFlag != "" {
-					err = execFlag(currentFlag, flagArg, &todos)
-				}
-				currentFlag = RedoFlag
-				flagArg = ""
-			case "-" + DelFlag:
-				if currentFlag != "" {
-					err = execFlag(currentFlag, flagArg, &todos)
-				}
-				currentFlag = DelFlag
-				flagArg = ""
-			default:
-				flagArg += " " + arg
-			}
+			err = execFlag(c.flag, c.args, &todos)
 		}
-	}
-	if currentFlag != "" && err == nil {
-		execFlag(currentFlag, flagArg, &todos)
 	}
 
 	if err != nil {
@@ -72,7 +44,31 @@ func main() {
 		fmt.Println("Something went wrong: ", err)
 		return
 	}
+
 	todos.Print()
+}
+
+func parseCmdArgs(cmdArgs []string) []command {
+	currentFlag := ""
+	flagArg := ""
+	execCommands := make([]command, 0)
+
+	for _, arg := range cmdArgs {
+		if arg == AddFlag || arg == CompleteFlag || arg == RedoFlag || arg == DelFlag {
+			if currentFlag != "" {
+				execCommands = append(execCommands, command{currentFlag, flagArg})
+			}
+			currentFlag = arg
+			flagArg = ""
+		} else {
+			flagArg += " " + arg
+		}
+	}
+	if currentFlag != "" {
+		execCommands = append(execCommands, command{currentFlag, flagArg})
+	}
+
+	return execCommands
 }
 
 func execFlag(flag string, arg string, t *cmd.Todos) error {
