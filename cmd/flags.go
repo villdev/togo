@@ -1,5 +1,10 @@
 package cmd
 
+import (
+	"strconv"
+	"strings"
+)
+
 const (
 	AddFlag      = "-add"
 	AFlag        = "-a"
@@ -39,19 +44,35 @@ func ParseCmdArgs(cmdArgs []string) []command {
 	return execCommands
 }
 
-func ExecFlag(c command, todos *Todos, offset int) error {
+func ExecFlag(c command, todos *Todos) error {
 	var err error
 	switch c.Flag {
 	case AddFlag, AFlag:
 		err = todos.Add(c.Args)
 	case CompleteFlag, CFlag:
-		err = todos.Complete(c.Args, offset)
+		err = todos.Complete(getIdFromIndex(c.Args, *todos))
 	case RedoFlag, RFlag:
-		err = todos.Redo(c.Args, offset)
+		err = todos.Redo(getIdFromIndex(c.Args, *todos))
 	case DelFlag, DFlag:
-		err = todos.Delete(c.Args, offset)
+		err = todos.Delete(getIdFromIndex(c.Args, *todos))
 	}
 	return err
+}
+
+func getIdFromIndex(arg string, todos Todos) string {
+	index, err := strconv.Atoi(strings.TrimSpace(arg))
+	id := ""
+	if err != nil || index < 1 || index > len(todos) {
+		return id
+	} else {
+		for i, todo := range todos {
+			if i == index-1 {
+				id = todo.ID
+				break
+			}
+		}
+		return id
+	}
 }
 
 var validFlags = map[string]bool{

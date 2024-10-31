@@ -3,8 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -12,6 +10,7 @@ import (
 )
 
 type todo struct {
+	ID        string
 	Title     string
 	Completed bool
 	CreatedAt time.Time
@@ -81,8 +80,12 @@ func (t *Todos) Add(title string) error {
 	if title == "" {
 		return errors.New("add: title cannot be empty")
 	}
-
+	id, err := GenerateUniqueID()
+	if err != nil {
+		return errors.New("add: something went wrong")
+	}
 	newTodo := todo{
+		ID:        id,
 		Title:     title,
 		Completed: false,
 		CreatedAt: time.Now(),
@@ -92,42 +95,63 @@ func (t *Todos) Add(title string) error {
 	return nil
 }
 
-func (t *Todos) Complete(id string, offset int) error {
-	index, err := strconv.Atoi(strings.TrimSpace(id))
-	index -= offset
-	if err != nil || index < 1 || index > len(*t) {
-		return errors.New("complete: invalid #id")
-	}
+func (t *Todos) Complete(id string) error {
+	found := false
 
-	(*t)[index-1].Completed = true
-	return nil
-}
-
-func (t *Todos) Redo(id string, offset int) error {
-	index, err := strconv.Atoi(strings.TrimSpace(id))
-	index -= offset
-	if err != nil || index < 1 || index > len(*t) {
-		return errors.New("redo: invalid #id")
-	}
-
-	(*t)[index-1].Completed = false
-	return nil
-}
-
-func (t *Todos) Delete(id string, offset int) error {
-	index, err := strconv.Atoi(strings.TrimSpace(id))
-	index -= offset
-	if err != nil || index < 1 || index > len(*t) {
-		return errors.New("del: invalid #id")
-	}
-
-	newT := make(Todos, 0, len(*t)-1)
-	for i, ti := range *t {
-		if i != index-1 {
-			newT = append(newT, ti)
+	for index, todo := range *t {
+		if todo.ID == id {
+			(*t)[index].Completed = true
+			found = true
+			break
 		}
 	}
-	*t = newT
 
-	return nil
+	if found {
+		return nil
+	} else {
+		return errors.New("complete: invalid #id")
+	}
+}
+
+func (t *Todos) Redo(id string) error {
+	found := false
+
+	for index, todo := range *t {
+		if todo.ID == id {
+			(*t)[index].Completed = false
+			found = true
+			break
+		}
+	}
+
+	if found {
+		return nil
+	} else {
+		return errors.New("redo: invalid #id")
+	}
+}
+
+func (t *Todos) Delete(id string) error {
+	found := false
+
+	for _, todo := range *t {
+		if todo.ID == id {
+			found = true
+			break
+		}
+	}
+
+	if found {
+		filteredTodo := make(Todos, 0, len(*t)-1)
+		for _, todo := range *t {
+			if todo.ID != id {
+				filteredTodo = append(filteredTodo, todo)
+			}
+		}
+		*t = filteredTodo
+
+		return nil
+	} else {
+		return errors.New("del: invalid #id")
+	}
 }
