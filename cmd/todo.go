@@ -3,11 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
-	"text/tabwriter"
 	"time"
+
+	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type todo struct {
@@ -24,14 +25,56 @@ func (t *Todos) Print() {
 		return
 	}
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "No.\tTitle\tCompleted\tCreated At")
-
-	for i, ti := range *t {
-		fmt.Fprintf(w, "%d.\t%s\t%v\t%s\n", i+1, ti.Title, ti.Completed, ti.CreatedAt.Format("2006-01-02 15:04:05"))
+	columns := []table.Column{
+		{Title: "No", Width: 4},
+		{Title: "Title", Width: 40},
+		{Title: "Status", Width: 8},
+		{Title: "Created At", Width: 20},
 	}
 
-	w.Flush()
+	var rows []table.Row
+	for i, todo := range *t {
+		status := "🔳"
+		if todo.Completed {
+			status = "✅"
+		}
+
+		rows = append(rows, table.Row{
+			fmt.Sprintf("%d", i+1),
+			todo.Title,
+			status,
+			todo.CreatedAt.Format("2006-01-02 15:04"),
+		})
+	}
+
+	tb := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithHeight((len(rows)*3)+1),
+		table.WithFocused(false),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = s.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderBottom(true).
+		Bold(false)
+	s.Cell = s.Cell.
+		BorderForeground(lipgloss.Color("240")).
+		PaddingTop(1).
+		PaddingBottom(1)
+	s.Selected = s.Cell.
+		BorderForeground(lipgloss.Color("240")).
+		Padding(0)
+
+	tb.SetStyles(s)
+
+	fmt.Println(
+		lipgloss.NewStyle().
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("240")).
+			Render(tb.View()))
 }
 
 func (t *Todos) Add(title string) error {
