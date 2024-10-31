@@ -17,7 +17,7 @@ func main() {
 		return
 	}
 
-	flagQueue := cmd.ParseCmdArgs(os.Args[1:])
+	flagQueue := cmd.ParseCmdArgs(os.Args[1:], &todos)
 
 	for _, c := range flagQueue {
 		err = cmd.ExecFlag(c, &todos)

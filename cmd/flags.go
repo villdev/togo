@@ -21,7 +21,7 @@ type command struct {
 	Args string
 }
 
-func ParseCmdArgs(cmdArgs []string) []command {
+func ParseCmdArgs(cmdArgs []string, todos *Todos) []command {
 	currentFlag := ""
 	flagArg := ""
 	execCommands := make([]command, 0)
@@ -29,7 +29,7 @@ func ParseCmdArgs(cmdArgs []string) []command {
 	for _, arg := range cmdArgs {
 		if validFlags[arg] {
 			if currentFlag != "" {
-				execCommands = append(execCommands, command{currentFlag, flagArg})
+				execCommands = append(execCommands, generateCommand(currentFlag, flagArg, *todos))
 			}
 			currentFlag = arg
 			flagArg = ""
@@ -38,7 +38,7 @@ func ParseCmdArgs(cmdArgs []string) []command {
 		}
 	}
 	if currentFlag != "" {
-		execCommands = append(execCommands, command{currentFlag, flagArg})
+		execCommands = append(execCommands, generateCommand(currentFlag, flagArg, *todos))
 	}
 
 	return execCommands
@@ -50,13 +50,23 @@ func ExecFlag(c command, todos *Todos) error {
 	case AddFlag, AFlag:
 		err = todos.Add(c.Args)
 	case CompleteFlag, CFlag:
-		err = todos.Complete(getIdFromIndex(c.Args, *todos))
+		err = todos.Complete(c.Args)
 	case RedoFlag, RFlag:
-		err = todos.Redo(getIdFromIndex(c.Args, *todos))
+		err = todos.Redo(c.Args)
 	case DelFlag, DFlag:
-		err = todos.Delete(getIdFromIndex(c.Args, *todos))
+		err = todos.Delete(c.Args)
 	}
 	return err
+}
+
+func generateCommand(flag string, args string, todos Todos) command {
+	c := command{flag, args}
+	if flag == AddFlag || flag == AFlag {
+		return c
+	} else {
+		c.Args = getIdFromIndex(c.Args, todos)
+		return c
+	}
 }
 
 func getIdFromIndex(arg string, todos Todos) string {
