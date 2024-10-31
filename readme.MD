@@ -1,6 +1,5 @@
 ## Togo
 CLI to manage todos. Stored locally in json file.
-<img width="605" alt="Screenshot 2024-10-31 at 6 54 05 AM" src="https://github.com/user-attachments/assets/a1946b76-ad82-4a6a-a786-94dda2cd4958">
 
 ### Usage
 Clone repo and cd into it
@@ -16,3 +15,5 @@ Commands
 4. `./togo -redo <2>` mark #2 task as undone (or `-r`)
 5. `./togo -del <2>` delete #2 task (or `-d`)
 6. `./togo -add todo1 -add todo2 -del 2` exec multi flags
+
+<img width="600" alt="Screenshot 2024-10-31 at 7 11 19 AM" src="https://github.com/user-attachments/assets/3fb81d78-1139-4aa2-a3e1-05a75daf29f4">
