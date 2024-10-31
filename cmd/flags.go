@@ -2,9 +2,13 @@ package cmd
 
 const (
 	AddFlag      = "-add"
+	AFlag        = "-a"
 	CompleteFlag = "-complete"
+	CFlag        = "-c"
 	RedoFlag     = "-redo"
+	RFlag        = "-r"
 	DelFlag      = "-del"
+	DFlag        = "-d"
 )
 
 type command struct {
@@ -18,7 +22,7 @@ func ParseCmdArgs(cmdArgs []string) []command {
 	execCommands := make([]command, 0)
 
 	for _, arg := range cmdArgs {
-		if arg == AddFlag || arg == CompleteFlag || arg == RedoFlag || arg == DelFlag {
+		if validFlags[arg] {
 			if currentFlag != "" {
 				execCommands = append(execCommands, command{currentFlag, flagArg})
 			}
@@ -38,14 +42,25 @@ func ParseCmdArgs(cmdArgs []string) []command {
 func ExecFlag(c command, todos *Todos, offset int) error {
 	var err error
 	switch c.Flag {
-	case AddFlag:
+	case AddFlag, AFlag:
 		err = todos.Add(c.Args)
-	case CompleteFlag:
+	case CompleteFlag, CFlag:
 		err = todos.Complete(c.Args, offset)
-	case RedoFlag:
+	case RedoFlag, RFlag:
 		err = todos.Redo(c.Args, offset)
-	case DelFlag:
+	case DelFlag, DFlag:
 		err = todos.Delete(c.Args, offset)
 	}
 	return err
+}
+
+var validFlags = map[string]bool{
+	AddFlag:      true,
+	AFlag:        true,
+	CompleteFlag: true,
+	CFlag:        true,
+	RedoFlag:     true,
+	RFlag:        true,
+	DelFlag:      true,
+	DFlag:        true,
 }
