@@ -8,8 +8,8 @@ const (
 )
 
 type command struct {
-	flag string
-	args string
+	Flag string
+	Args string
 }
 
 func ParseCmdArgs(cmdArgs []string) []command {
@@ -35,17 +35,17 @@ func ParseCmdArgs(cmdArgs []string) []command {
 	return execCommands
 }
 
-func ExecFlag(c command, todos *Todos) error {
+func ExecFlag(c command, todos *Todos, offset int) error {
 	var err error
-	switch c.flag {
+	switch c.Flag {
 	case AddFlag:
-		err = todos.Add(c.args)
+		err = todos.Add(c.Args)
 	case CompleteFlag:
-		err = todos.Complete(c.args)
+		err = todos.Complete(c.Args, offset)
 	case RedoFlag:
-		err = todos.Redo(c.args)
+		err = todos.Redo(c.Args, offset)
 	case DelFlag:
-		err = todos.Delete(c.args)
+		err = todos.Delete(c.Args, offset)
 	}
 	return err
 }

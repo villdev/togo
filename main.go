@@ -19,8 +19,12 @@ func main() {
 
 	flagQueue := cmd.ParseCmdArgs(os.Args[1:])
 
+	offset := 0
 	for _, c := range flagQueue {
-		err = cmd.ExecFlag(c, &todos)
+		err = cmd.ExecFlag(c, &todos, offset)
+		if c.Flag == cmd.DelFlag {
+			offset++
+		}
 		if err != nil {
 			fmt.Println("Error: ", err)
 			break

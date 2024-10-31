@@ -49,10 +49,10 @@ func (t *Todos) Add(title string) error {
 	return nil
 }
 
-func (t *Todos) Complete(id string) error {
+func (t *Todos) Complete(id string, offset int) error {
 	index, err := strconv.Atoi(strings.TrimSpace(id))
+	index -= offset
 	if err != nil || index < 1 || index > len(*t) {
-		fmt.Println(err)
 		return errors.New("complete: invalid #id")
 	}
 
@@ -60,8 +60,9 @@ func (t *Todos) Complete(id string) error {
 	return nil
 }
 
-func (t *Todos) Redo(id string) error {
+func (t *Todos) Redo(id string, offset int) error {
 	index, err := strconv.Atoi(strings.TrimSpace(id))
+	index -= offset
 	if err != nil || index < 1 || index > len(*t) {
 		return errors.New("redo: invalid #id")
 	}
@@ -70,8 +71,9 @@ func (t *Todos) Redo(id string) error {
 	return nil
 }
 
-func (t *Todos) Delete(id string) error {
+func (t *Todos) Delete(id string, offset int) error {
 	index, err := strconv.Atoi(strings.TrimSpace(id))
+	index -= offset
 	if err != nil || index < 1 || index > len(*t) {
 		return errors.New("del: invalid #id")
 	}
