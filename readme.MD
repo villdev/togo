@@ -1,5 +1,6 @@
 ## Togo
 CLI to manage todos. Stored locally in json file.
+<img width="605" alt="Screenshot 2024-10-31 at 6 54 05 AM" src="https://github.com/user-attachments/assets/a1946b76-ad82-4a6a-a786-94dda2cd4958">
 
 ### Usage
 Clone repo and cd into it
