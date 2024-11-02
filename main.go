@@ -8,10 +8,8 @@ import (
 	"github.com/villdev/togo/store"
 )
 
-const todoFilePath = "./store/todo.json"
-
 func main() {
-	todos, err := store.Load(todoFilePath)
+	todos, err := store.Load()
 	if err != nil {
 		fmt.Println("Error: ", err)
 		return
@@ -27,7 +25,7 @@ func main() {
 		}
 	}
 
-	err = store.Save(todos, todoFilePath)
+	err = store.Save(todos)
 	if err != nil {
 		fmt.Println("Something went wrong: ", err)
 		return

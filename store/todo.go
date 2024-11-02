@@ -7,9 +7,14 @@ import (
 	"github.com/villdev/togo/cmd"
 )
 
-func Load(filename string) (cmd.Todos, error) {
+func Load() (cmd.Todos, error) {
 	var todos cmd.Todos
-	file, err := os.ReadFile(filename)
+	filePath, err := GetJSONFilePath()
+	if err != nil {
+		return todos, err
+	}
+
+	file, err := os.ReadFile(filePath)
 	if err != nil {
 		return todos, err
 	}
@@ -22,13 +27,17 @@ func Load(filename string) (cmd.Todos, error) {
 	return todos, nil
 }
 
-func Save(src cmd.Todos, filename string) error {
+func Save(src cmd.Todos) error {
 	file, err := json.Marshal(src)
 	if err != nil {
 		return err
 	}
+	filePath, err := GetJSONFilePath()
+	if err != nil {
+		return err
+	}
 
-	err = os.WriteFile(filename, file, 0644)
+	err = os.WriteFile(filePath, file, 0644)
 	if err != nil {
 		return err
 	}
